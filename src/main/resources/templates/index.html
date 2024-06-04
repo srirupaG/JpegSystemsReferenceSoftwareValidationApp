@@ -8,36 +8,26 @@
 
 <body>
 
-	<h1>Welcome to JPEG Systems Reference Software Validation Application</h1>
+	<h1>Welcome to JPEG Reference Software Validation Application</h1>
 
 	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
 	<form th:action="@{/logout}" method="post">
 		<input type="submit" value="Sign Out" />
 	</form>
-	<br>
-	<br>
-
-
-	<a th:href="@{/upload}">Upload Images Without Access Rules</a>
-	<br>
-	<br>
-	<a th:href="@{/images}">View and Decrypt Images Without Access Rules</a>
-	<br>
-	<br>
-	<a th:href="@{/uploadImageBasedOnGroups}">Upload Images Based on User Groups Access Rules</a>
-	<br>
-	<br>
-	<a th:href="@{/viewImageUploadedByUser}">View Images Uploaded By User</a>
-	<br>
-	<br>
-	<a th:href="@{/viewImageForUserGroup}">View All Images</a>
-	<br>
-	<br>
-	<a th:href="@{/goToUploadImageRoi}">Upload Images By ROI</a>
-	<br>
-	<br>
-	<a th:href="@{/viewImageRoiPage}">View ROI Protected images</a>
-	<br>
+	
+	    <div>
+	        <h2>Protecting images using Aes 256 CBC Encryption</h2>
+	        <div th:replace="group1 :: group1Links"></div>
+	    </div>
+		<div>
+		<h2>Protecting images using Access Rules</h2>
+		    <div th:replace="group2 :: group2Links"></div>
+		</div>
+		</div>
+		<div>
+		<h2>Protecting a region of interest (ROI) in an image</h2>
+		    <div th:replace="group3 :: group3Links"></div>
+		</div>
 
 </body>
 

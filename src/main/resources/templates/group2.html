@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Group 2 Links</title>
+</head>
+
+<body>
+
+	<div th:fragment="group2Links">
+
+
+			<a th:href="@{/uploadImageBasedOnGroups}">Upload Images Based on User Groups Access Rules</a>
+			<br>
+			<br>
+			<a th:href="@{/viewImageUploadedByUser}">View Images Uploaded By User</a>
+			<br>
+			<br>
+			<a th:href="@{/viewImageForUserGroup}">View All Images</a>
+
+	</div>
+
+</body>
+
+</html>

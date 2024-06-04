@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.jpegSystemsValidation.model.Image;
 import com.example.jpegSystemsValidation.util.SecretKeyUtil;
 
 @Controller
@@ -74,17 +75,26 @@ public class ImageController {
 	private String uploadDirectory;
 	
 
-	/** Display the list of files from the "filesDirectory" */
+	/** 
+	 * Display the list of files from the "filesDirectory" 
+	 * */
 	@GetMapping("/images")
 	public String displayListOfFiles(Model model, Principal principal) {
 
 		File folder = new File(filesDirectory);
 		File[] listOfFiles = folder.listFiles();
 		if (listOfFiles != null) {
-	        // Filter files with ".jumbf" and ".jpeg" extension
-	        List<String> fileNames = Arrays.stream(listOfFiles).filter(file -> file.getName().toLowerCase().endsWith(".jumbf") || file.getName().toLowerCase().endsWith(".jpeg"))
-	                                       .map(File::getName)
-	                                       .collect(Collectors.toList());
+	        // Filter files with ".jumbf" and ".jpeg" extension but not ROI images
+			List<String> fileNames = Arrays.stream(listOfFiles)
+                    .filter(file -> {
+                        String fileName = file.getName().toLowerCase();
+                        boolean hasValidExtension = fileName.endsWith(".jumbf") || fileName.endsWith(".jpeg");
+                        boolean containsROI = fileName.contains("roi");
+                        return hasValidExtension && !containsROI;
+                    })
+                    .map(File::getName)
+                    .collect(Collectors.toList());
+	        
 
 	        model.addAttribute("fileNames", fileNames);
 		}
@@ -142,7 +152,9 @@ public class ImageController {
 
 	/************* Upload Image ******************/
 
-	/** Go to upload images page */
+	/** 
+	 * Go to Upload Images Without Access Rules
+	 */
 	@GetMapping("/upload")
 	public String displayUploadForm() {
 
@@ -150,34 +162,28 @@ public class ImageController {
 	}
 
 
+	/** 
+	 * Upload Images Without Access Rules
+	 */
 	@RequestMapping("/uploadImages")
 	public String upload(Model model, @RequestParam("files") MultipartFile[] files, Principal principal)
 			throws InvalidKeySpecException, NoSuchAlgorithmException, FileNotFoundException, NoSuchPaddingException,
 			InvalidKeyException, IOException, MipamsException {
 
 		StringBuilder fileNames = new StringBuilder();
-
 		for (MultipartFile file : files) {
-
 			Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
-
 			fileNames.append(file.getOriginalFilename() + " ");
-
 			try {
 
 				Cipher cipher = Cipher.getInstance("AES");
-
 				cipher.init(Cipher.ENCRYPT_MODE, SecretKeyUtil.getKeyFromPassword("abc", "xyz")); // get userId
-
 				CipherInputStream cipt = new CipherInputStream(
 						new FileInputStream(new File(uploadDirectory, file.getOriginalFilename())), cipher);
-
 				FileOutputStream fileip = new FileOutputStream(
 						uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_OBJ);
-
 				int i;
 				while ((i = cipt.read()) != -1) {
-
 					fileip.write(i);
 				}
 
@@ -210,6 +216,10 @@ public class ImageController {
 		return "uploadImageStatus";
 	}
 
+	
+	/** 
+	 * Click on the Decrypt Images hyperlink to decrypt the image
+	 */
 	@GetMapping("/decryptImage")
 	public String decyptImage(Model model, @RequestParam String fileName, Principal principal)
 			throws MipamsException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
@@ -231,7 +241,6 @@ public class ImageController {
 
 		int j;
 		while ((j = ciptt.read()) != -1) {
-
 			fileipo.write(j);
 		}
 

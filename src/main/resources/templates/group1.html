@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Group 1 Links</title>
+</head>
+
+<body>
+
+	<div th:fragment="group1Links">
+
+	<a th:href="@{/upload}">Upload Images Without Access Rules</a>
+	<br>
+	<br>
+	<a th:href="@{/images}">View and Decrypt Images Without Access Rules</a>
+
+	</div>
+
+</body>
+
+</html>
