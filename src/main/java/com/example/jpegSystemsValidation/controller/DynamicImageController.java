@@ -100,7 +100,9 @@ public class DynamicImageController {
     }
     
     
-	/** Display the list of images which are fetched from a local directory */
+	/** 
+	 * Display the list of images which are fetched from a local directory
+	 */
 	@Value("${file.directory.path}")
 	private String filesDirectory;
 	
@@ -110,10 +112,11 @@ public class DynamicImageController {
 	
 	/************* Image upload based on user group ******************/
 	
-	/** Go to upload images page for groups */
+	/** 
+	 * Go to upload images page for groups 
+	*/
 	@GetMapping("/uploadImageBasedOnGroups")
     public String uploadImageBasedOnGroups(Model model, Principal principal ) {
-		
 		
 		List<Role> roles = roleRepository.findAll();
         model.addAttribute("roles", roles);
@@ -121,7 +124,9 @@ public class DynamicImageController {
     }
 	
 	
-	/** Upload Images Based on User Groups */
+	/** 
+	 * Upload Images Based on User Groups 
+	 */
 	@PostMapping("uploadImagesWithAcessRulesOnGroups")
     public String uploadImagesWithAcessRulesOnGroups(Model model,
             @RequestParam(value = "viewGroups", required = false) List<String> viewGroupNames,
@@ -130,10 +135,7 @@ public class DynamicImageController {
             Principal principal) 
             throws InvalidKeySpecException, NoSuchAlgorithmException, FileNotFoundException, NoSuchPaddingException,InvalidKeyException, IOException, MipamsException {
 		
-		
         StringBuilder fileNames = new StringBuilder();
-        
-        
         for (MultipartFile file : files) {
 			Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
 			fileNames.append(file.getOriginalFilename() + " ");
@@ -237,25 +239,33 @@ public class DynamicImageController {
         
     }
 	
-	/** View Images Uploaded By Users */
+	/** 
+	 * View Images Uploaded By Users
+	 */
 	@GetMapping("/viewImageUploadedByUser")
 	public String viewImageUploadedByUser(Model model, Principal principal) {
 		
 		String loggedInUser = principal.getName();
-		
 		User users = userRepository.findByUsername(loggedInUser);
 		System.out.println("users::::::::"+ users.getId());
 		
-		List<Image> images = imageService.findImagesByUserId(users.getId());
+		List<Image> listOfAllImages = imageService.findImagesByUserId(users.getId());
+		
+		 List<Image> images = listOfAllImages.stream()
+	                .filter(image -> !image.getImageName().contains("ROI"))
+	                .collect(Collectors.toList());
 		
 		model.addAttribute("images", images);
-
+		
 	    return "viewImagesUploadedByUser";
 	    
 	}
 	
 	
-	/** User can view his own uploaded images. Here the XACML rules will not be checked */
+	/** 
+	 * User can view his own uploaded images. 
+	 * Here the XACML rules will not be checked 
+	*/
 	@GetMapping("/viewIndividualImageUploadedByUser")
 	public String viewIndividualImageUploadedByUser(Model model, 
 			@RequestParam("imageId") Long imageId,
@@ -263,9 +273,6 @@ public class DynamicImageController {
 			throws MipamsException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
 			InvalidKeySpecException, IOException, SAXException, ParserConfigurationException {
 
-		System.out.println("principal.getName()" + principal.getName());
-		System.out.println("imageId:::"+imageId);
-		
 		// Search the image from DB
 		Optional<Image> imageOptional = imageService.findByImageId(imageId);
 		
@@ -311,11 +318,11 @@ public class DynamicImageController {
 	}
 	
 	
-	/** View / Hide functionality from database */
+	/** 
+	 * View / Hide functionality from database 
+	*/
 	@PostMapping("/hideImageFromOthers")
     public String hideImageFromOthers(@RequestParam("imageIds") List<Long> imageIds, Model model, Principal principal) {
-		
-//		System.out.println("imageIds::::"+imageIds);
 		
         for (Long imageId : imageIds) {
         	Optional<Image> imageOptional = imageService.findByImageId(imageId);
@@ -341,7 +348,10 @@ public class DynamicImageController {
     }
 	
 	
-	/** Go to View All Images Page. This page is populated by DB based on the isHidden field */
+	/** 
+	 * Go to View All Images Page. 
+	 * This page is populated by DB based on the isHidden field 
+	 * */
 	@GetMapping("/viewImageForUserGroup")
 	public String viewImageForUserGroup(Model model, Principal principal) {
 
@@ -358,16 +368,15 @@ public class DynamicImageController {
 	}
 	
 	
-	/** Function to view the image if the user has access rights */
+	/** 
+	 * Function to view the image if the user has access rights 
+	 * */
 	@GetMapping("/viewImagesByUserGroup")
 	public String viewImagesByUserGroup(Model model, 
 			@RequestParam("imageId") Long imageId,
 			Principal principal)
 			throws MipamsException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
 			InvalidKeySpecException, IOException, SAXException, ParserConfigurationException {
-		
-		System.out.println("principal.getName()" + principal.getName());
-		System.out.println("imageId:::"+imageId);
 		
 		// Search the image from DB
 		Optional<Image> imageOptional = imageService.findByImageId(imageId);
@@ -461,7 +470,6 @@ public class DynamicImageController {
 						model.addAttribute("msg", "Successfully decrypted files " + baseFileName + DECRYPT_JPEG + ", go back to main menu to view this image");
 						
 						model.addAttribute("fileName", baseFileName + DECRYPT_JPEG);
-//						return "viewImage";
 					}
 					else {
 						model.addAttribute("error", "User not allowed to view image");
@@ -475,7 +483,9 @@ public class DynamicImageController {
 	}
 	
 	
-	/** Function to edit the image if the user has access rights */
+	/** 
+	 * Function to edit the image if the user has access rights 
+	 * */
 	@GetMapping("/editImagesByUserGroup")
 	public String editImagesByUserGroup(Model model, 
 			@RequestParam("imageName") String imageName,
@@ -484,12 +494,7 @@ public class DynamicImageController {
 			InvalidKeySpecException, IOException, SAXException, ParserConfigurationException {
 		
 		
-		System.out.println("fileName:::"+imageName);
-		
 		String fileName = imageName + ENCRYPT_JUMBF;
-		System.out.println("jumbfFileName:::::"+fileName);
-		
-
 		int lastDotIndex = fileName.lastIndexOf(".");
 
 		List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + fileName);

@@ -34,10 +34,4 @@ public class ImageGroupViewServiceImpl implements ImageGroupViewService{
 		return imageGroupViewRepository.findByImageId(imageId);
 	}
 
-//	@Override
-//	public List<ImageGroupView> findByImageId(Image image) {
-//		// TODO Auto-generated method stub
-//		return imageGroupViewRepository.findByImageId(image);
-//	}
-
 }

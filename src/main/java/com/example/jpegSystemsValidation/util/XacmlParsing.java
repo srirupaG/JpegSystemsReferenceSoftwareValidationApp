@@ -7,7 +7,6 @@ public class XacmlParsing {
 	
 	
 	public static boolean checkPermissionByRuleToViewOrEdit(Element rootElement, String userGroup, String ruleIdToCheck) {
-//		System.out.println("userGroup"+userGroup);
 	    NodeList ruleNodes = rootElement.getElementsByTagName("Rule");
 	    for (int i = 0; i < ruleNodes.getLength(); i++) {
 	        Element ruleElement = (Element) ruleNodes.item(i);

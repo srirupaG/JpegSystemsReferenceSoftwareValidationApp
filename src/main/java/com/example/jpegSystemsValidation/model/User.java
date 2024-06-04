@@ -62,13 +62,6 @@ public class User {
 	    private Set<Image> images = new HashSet<>();
 	    
 	    
-//	    @ManyToMany(fetch = FetchType.LAZY)
-//	    @JoinTable(name = "group_user", joinColumns = @JoinColumn(name = "user_id"),
-//	            inverseJoinColumns = @JoinColumn(name = "group_id"))
-//	    private Set<Group> groups = new HashSet<>();
-	    
-	    
-
 		public Long getId() {
 			return id;
 		}
@@ -157,16 +150,5 @@ public class User {
 		public void setImages(Set<Image> images) {
 			this.images = images;
 		}
-
-
-//		public Set<Group> getGroups() {
-//			return groups;
-//		}
-//
-//
-//		public void setGroups(Set<Group> groups) {
-//			this.groups = groups;
-//		}
-	    
 		
 }

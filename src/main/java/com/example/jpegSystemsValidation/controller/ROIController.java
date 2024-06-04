@@ -101,6 +101,18 @@ public class ROIController {
 	
 	public static final String DECRYPT_JPEG = "_decrypt.jpeg";
 	
+	public static final String APPEND_WITH_ROI = "_with_ROI.jpg";
+	
+	public static final String APPEND_WITH_CROPPED_R = "_cropped_R.jpg";
+	
+	public static final String APPEND_WITH_EMOJI_R = "_emoji_R.jpg";
+	
+	public static final String EMOJI_TO_BE_INSERTED = "Emoji.jpeg";
+	
+	public static final String ENCRYPT_REPLACEMENT_BOX = "ecryptReplacementBox.jumbf";
+	
+	public static final String DECRYPT_INTERMEDIATE = "DecryptIntermediate";
+	
 	public final UserRepository userRepository;
 	
 	public final RoleRepository roleRepository;
@@ -111,14 +123,18 @@ public class ROIController {
     }
     
     
-	/** Display the list of images which are fetched from a local directory */
+	/** 
+	 * Display the list of images which are fetched from a local directory 
+	 * */
 	@Value("${file.directory.path}")
 	private String filesDirectory;
 	
 	@Value("${upload.directory}")
 	private String uploadDirectory;
 
-	// Resize the emoji/overlay image to fit within the dimensions of the ROI
+		/** 
+		 * Function to resize the emoji/overlay image to fit within the dimensions of the ROI
+		 * */
 		private BufferedImage resizeImage(BufferedImage originalImage, int targetWidth, int targetHeight) {
 		    BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, originalImage.getType());
 		    Graphics2D g = resizedImage.createGraphics();
@@ -127,7 +143,9 @@ public class ROIController {
 		    return resizedImage;
 		}
 
-		// Overlay the emoji/overlay image on the cropped region
+		/** 
+		 * Function to overlay the emoji/overlay image on the cropped region
+		 * */
 		private BufferedImage addEmojiOverlay(BufferedImage croppedImage, BufferedImage emojiImage) {
 		    Graphics2D g = croppedImage.createGraphics();
 		    g.drawImage(emojiImage, 0, 0, null);
@@ -136,7 +154,9 @@ public class ROIController {
 		}
 
 
-		// Method to save the image to a file and return the file path
+		/** 
+		 * Function to save the image to a file and return the file path
+		 * */
 		private String saveImage(BufferedImage image, String outputPath) throws IOException {
 		    File outputFile = new File(outputPath);
 		    ImageIO.write(image, "jpg", outputFile);
@@ -144,7 +164,9 @@ public class ROIController {
 		}
 		
 		
-		// Method to merge the overlay image into the original image at the ROI position
+		/** 
+		 * Function to save the image to a file and return the file path
+		 * */
 		private BufferedImage mergeImages(BufferedImage originalImage, BufferedImage overlayImage, int x, int y) {
 		    Graphics2D g = originalImage.createGraphics();
 		    g.drawImage(overlayImage, x, y, null);
@@ -152,11 +174,16 @@ public class ROIController {
 		    return originalImage;
 		}
 		
+		/** 
+		 * Function to crop the image
+		 * */
 		private BufferedImage cropImage(BufferedImage originalImage, int x, int y, int width, int height) {
 		    return originalImage.getSubimage(x, y, width, height);
 		}
 	
-		/** Go to upload images page for ROI */
+		/** 
+		 * Go to upload images page for ROI 
+		 * */
 		@GetMapping("/goToUploadImageRoi")
 	    public String goToUploadImageRoi(Model model) {
 			
@@ -165,7 +192,9 @@ public class ROIController {
 	        return "uploadImagesForRoi";
 	    }
 	
-	
+		/** 
+		 * This function will encrypt the ROI image when an image is uploaded
+		 * */
 		@RequestMapping("/uploadImagesForROI")
 		public String uploadImagesForROI(Model model, 
 			@RequestParam("files") MultipartFile[] files, 
@@ -184,12 +213,12 @@ public class ROIController {
 	            String imagePath = fileNameAndPath.toString();
 	            String originalFileName = file.getOriginalFilename();
 	            String baseName = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
-	            String outputPath = uploadDirectory + "/" + baseName + "_with_ROI.jpg";
+	            String outputPath = uploadDirectory + "/" + baseName + APPEND_WITH_ROI;
 	            String encryptedOutputPath = uploadDirectory + "/" + baseName + ENCRYPT_OBJ;
-	            String roiImagePath = uploadDirectory + "/" + baseName + "_cropped_R.jpg";
-	            String emojiOverlayPath = uploadDirectory + "/" + baseName + "_emoji_R.jpg";
-	            String finalFileName = baseName + "_with_ROI.jpg";
-
+	            String roiImagePath = uploadDirectory + "/" + baseName + APPEND_WITH_CROPPED_R ;
+	            String emojiOverlayPath = uploadDirectory + "/" + baseName + APPEND_WITH_EMOJI_R;
+	            String finalFileName = baseName + APPEND_WITH_ROI;
+	            
 	            // Define the region of interest (ROI), the position determined by offsets x and y 
 	            int roiX = 500;
 	            int roiY = 500;
@@ -211,7 +240,7 @@ public class ROIController {
 		            String savedCroppedImagePath = saveImage(croppedImage, roiImagePath);
 		            System.out.println("savedCroppedImagePath::::: " + savedCroppedImagePath);
 
-		            BufferedImage emojiImage = ImageIO.read(new File(uploadDirectory + "/" + "Emoji.jpeg"));
+		            BufferedImage emojiImage = ImageIO.read(new File(uploadDirectory + "/" + EMOJI_TO_BE_INSERTED));
 		            BufferedImage resizedEmojiImage = resizeImage(emojiImage, roiWidth, roiHeight);
 
 		            BufferedImage emojiOverlayImage = addEmojiOverlay(croppedImage, resizedEmojiImage);
@@ -250,14 +279,14 @@ public class ROIController {
                 jumbfBoxBuilder.appendContentBox(jp2cBox);
                 JumbfBox jRBox = jumbfBoxBuilder.getResult();
                 
-                coreGeneratorService.generateJumbfMetadataToFile(List.of(jRBox), uploadDirectory + "/" + finalFileName + "ecryptReplacementBox.jumbf");
+                coreGeneratorService.generateJumbfMetadataToFile(List.of(jRBox), uploadDirectory + "/" + finalFileName + ENCRYPT_REPLACEMENT_BOX);
                 
                 
 				try {
 					Cipher cipher = Cipher.getInstance("AES");
 					cipher.init(Cipher.ENCRYPT_MODE, SecretKeyUtil.getKeyFromPassword("abc", "xyz")); // get userId
 					
-					File fileToRead = new File(uploadDirectory + "/" + finalFileName + "ecryptReplacementBox.jumbf");
+					File fileToRead = new File(uploadDirectory + "/" + finalFileName + ENCRYPT_REPLACEMENT_BOX);
 					
 					if (!fileToRead.exists() || fileToRead.isDirectory()) {
 					    System.err.println("File does not exist or is a directory: " + fileToRead.getAbsolutePath());
@@ -317,7 +346,6 @@ public class ROIController {
 				jumbfBoxBuilder.setLabel("roi-reference-group");
 
 				XmlBox xmlBox = new XmlBox();
-//				System.out.println(xacmlContentString);
 				// setting StringBuilder content to String
 				xmlBox.setContent(xacmlContentString.toString().getBytes());
 
@@ -357,7 +385,9 @@ public class ROIController {
 	}
 
 	
-		/** Display the list of files from the "filesDirectory" */
+		/** 
+		 * Display the list of files from the "filesDirectory" 
+		 * */
 		@GetMapping("/viewImageRoiPage")
 		public String viewImageRoiPage(Model model, Principal principal) {
 	
@@ -373,7 +403,9 @@ public class ROIController {
 		}
 	
 	
-		/**  */
+		/** 
+		 * The ROI image can be viewed by all the users 
+		 * */
 		@GetMapping("/viewIndividualROI")
 		public String viewIndividualROI(Model model, 
 				@RequestParam("imageId") Long imageId,
@@ -382,9 +414,6 @@ public class ROIController {
 				InvalidKeySpecException, IOException, SAXException, ParserConfigurationException {
 	
 			
-			System.out.println("principal.getName()" + principal.getName());
-	        System.out.println("imageId:::" + imageId);
-	
 	        Optional<Image> imageOptional = imageService.findByImageId(imageId);
 	
 	        if (imageOptional.isPresent()) {
@@ -414,7 +443,9 @@ public class ROIController {
 	    }
 					
 	
-	
+		/** 
+		 * This function will decrypt the ROI image if the user has access view
+		 * */
 		@PostMapping("/decryptAndViewImagesByROI")
 		public String decryptAndViewImagesByROI(Model model, 
 				@RequestParam("imageId") Long imageId,
@@ -431,9 +462,6 @@ public class ROIController {
 				String imageName = images.getImageName();
 				String filePath = images.getFilePath();
 				String baseImagePath = filePath + "/" + imageName;
-				System.out.println("imageName:::"+imageName);
-				System.out.println("filePath:::"+filePath);
-				System.out.println("baseImagePath:::"+baseImagePath);
 				
 				if(filePath.equalsIgnoreCase(uploadDirectory)) {
 					
@@ -441,8 +469,6 @@ public class ROIController {
 					int lastDotIndex = jumbfFileName.lastIndexOf(".");
 					String baseFileName = jumbfFileName.substring(0, lastDotIndex);
 					String outputPath = uploadDirectory + "/" + baseFileName + DECRYPT_JPEG;
-					System.out.println("baseFileName:::"+baseFileName);
-					System.out.println("jumbfFileName:::::"+jumbfFileName);
 
 					List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + jumbfFileName);
 					JumbfBox jBoxess = bBoxes.get(0);
@@ -452,7 +478,6 @@ public class ROIController {
 					
 					JumbfBox jBoxessXml = bBoxes.get(1);
 					XmlBox xmlBox = (XmlBox)jBoxessXml.getContentBoxList().get(0);
-//					System.out.println("xmlBox:::::"+ new String(xmlBox.getContent()));
 					
 					// XML content as a string
 					String xmlContent = new String(xmlBox.getContent());
@@ -503,7 +528,7 @@ public class ROIController {
 								cipher.init(Cipher.DECRYPT_MODE, SecretKeyUtil.getKeyFromPassword("abc", "xyz"));
 								CipherInputStream ciptt = new CipherInputStream(new FileInputStream(new File(bBox.getFileUrl())), cipher);
 					
-								FileOutputStream fileipo = new FileOutputStream(uploadDirectory + "/" + baseFileName + "DecryptIntermediate");
+								FileOutputStream fileipo = new FileOutputStream(uploadDirectory + "/" + baseFileName + DECRYPT_INTERMEDIATE);
 					
 								int j;
 								while ((j = ciptt.read()) != -1) {
@@ -513,7 +538,7 @@ public class ROIController {
 								
 							//ReplacementBox
 							
-							List<JumbfBox> rBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + baseFileName + "DecryptIntermediate");
+							List<JumbfBox> rBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + baseFileName + DECRYPT_INTERMEDIATE);
 							JumbfBox jBoxess1 = rBoxes.get(0);
 							
 							ContiguousCodestreamBox contiguousCodestreamBox = (ContiguousCodestreamBox) jBoxess1.getContentBoxList().get(1);
@@ -542,15 +567,13 @@ public class ROIController {
 				            // the position determined by offsets x and y. 
 				            int offsetX = roiParamHandler.getOffsetX(); 
 				            int offsetY = roiParamHandler.getOffsetY(); 
-				            System.out.println("offsetX:::::"+ offsetX);
-				            System.out.println("offsetY:::::"+ offsetY);
 			
 				            // Merge the cropped image back into the base image at the specified offsets
 				            BufferedImage mergedImage = mergeImages(baseImage, croppedImage, offsetX, offsetY);
 			
 				            // Save the resulting image
 				            String decryptImage = saveImage(baseImage, outputPath);
-				            System.out.println("Image decoded and saved successfully at " + decryptImage);
+				            System.out.println("Image decoded and saved successfully at the location " + decryptImage);
 				            
 				        } catch (IOException e) {
 				            System.err.println("Error processing the image: " + e.getMessage());
@@ -561,11 +584,9 @@ public class ROIController {
 				        	 
 				        	 
 				         } else {
-							model.addAttribute("error", "User not allowed to view image");
+							model.addAttribute("error", "User not allowed to view the image");
 							return "error";
 						}		
-				        
-
 			}
 			return "viewImage";
 

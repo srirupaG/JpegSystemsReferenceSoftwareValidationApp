@@ -49,7 +49,6 @@ public class AppConfig {
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/sign-in")
-//              .defaultSuccessUrl("/home/index", true)
                 .defaultSuccessUrl("/indexPage", true)
                 .permitAll()
                 .and()

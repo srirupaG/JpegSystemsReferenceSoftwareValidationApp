@@ -10,8 +10,6 @@ public interface ImageGroupViewService {
 	
 	void save(Image image, Role roleGiven);
 	
-//	List<ImageGroupView> findByImageId(Image image);
-
 	List<ImageGroupView> findByImageId(Long imageId);
 
 }

@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8">
-	<title>Title</title>
+	<title>View ROI Images </title>
 </head>
 
 <body>
@@ -19,20 +19,10 @@
 	<table>
 	    <thead>
 	        <tr>
-	       <th>Image ID</th> 				
+	       		<th>Image ID</th> 				
 	            <th>Image Name</th>
 	        </tr>
 	    </thead>
-		<!--     <tbody>
-	        <tr th:each="image : ${images}">
-				        <td hidden th:text="${image.id}"></td>  			
-	            <td th:text="${image}"></td>
-				<td>
-				    <a th:href="@{/viewImageRoiPage(image=${image})}" class="btn">View</a>
-				</td>
-	        </tr>
-	    </tbody>  		-->
-		
 		<tbody>
 		               <tr th:each="image : ${images}">
 		                   <td hidden th:text="${image.id}"></td>
@@ -42,8 +32,6 @@
 		                   </td>
 		               </tr>
 		           </tbody>
-		
-		
 		
 	</table>
 

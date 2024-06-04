@@ -85,10 +85,5 @@ public class ImageServiceImpl implements ImageService{
 		return imageRepository.findAllVisibleImages();
 	}
 	
-//	public List<Image> findAll(){
-//		return imageRepository.findAll();
-//	}
-
-
 
 }

@@ -21,10 +21,5 @@ public interface ImageService {
 	
 	List<Image> findAllVisibleImages();
 	
-//	List<Image> findAll();
-	
-	
-//	Image findByImageId(Long imageId);
-	
 
 }
