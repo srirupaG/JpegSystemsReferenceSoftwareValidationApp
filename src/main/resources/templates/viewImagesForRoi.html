@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+
+<body>
+    <h1>View ROI Images </h1>
+
+    <h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out" />
+    </form>
+	<br>
+	<br>
+	
+	<table>
+	    <thead>
+	        <tr>
+	       <th>Image ID</th> 				
+	            <th>Image Name</th>
+	        </tr>
+	    </thead>
+		<!--     <tbody>
+	        <tr th:each="image : ${images}">
+				        <td hidden th:text="${image.id}"></td>  			
+	            <td th:text="${image}"></td>
+				<td>
+				    <a th:href="@{/viewImageRoiPage(image=${image})}" class="btn">View</a>
+				</td>
+	        </tr>
+	    </tbody>  		-->
+		
+		<tbody>
+		               <tr th:each="image : ${images}">
+		                   <td hidden th:text="${image.id}"></td>
+		                   <td th:text="${image.imageName}"></td>
+		                   <td>
+		                       <a th:href="@{/viewIndividualROI(imageId=${image.id})}" class="btn">View</a>
+		                   </td>
+		               </tr>
+		           </tbody>
+		
+		
+		
+	</table>
+
+	<br>
+	<br>
+    <a th:href="@{/indexPage}">Go back to main page</a>
+</body>
+
+</html>

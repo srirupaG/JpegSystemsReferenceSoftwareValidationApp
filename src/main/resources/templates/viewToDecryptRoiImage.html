@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>View Image</title>
+</head>
+
+<body>
+	<h1>View ROI Protected Image</h1>
+
+	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Sign Out" />
+	</form>
+	<br>
+	<br>
+	<a th:href="@{/indexPage}">Go back to main page</a>
+	
+	<br>
+	<br>
+	
+	    <div th:if="${base64Image != null}">
+	        <img th:src="'data:image/jpeg;base64,' + ${base64Image}" alt="Image" style="width: 300px; height: auto;"/>
+			
+	        <form th:action="@{/decryptAndViewImagesByROI}" method="post">
+	            <input type="hidden" name="imageId" th:value="${imageId}" />
+	            <button type="submit">Decrypt Image</button>
+	        </form>
+	    </div>
+	    <div th:if="${base64Image == null}">
+	        <p>Image not found.</p>
+	    </div>
+
+</body>
+
+</html>

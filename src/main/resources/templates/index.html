@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+
+<body>
+
+	<h1>Welcome to JPEG Systems Reference Software Validation Application</h1>
+
+	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Sign Out" />
+	</form>
+	<br>
+	<br>
+
+
+	<a th:href="@{/upload}">Upload Images Without Access Rules</a>
+	<br>
+	<br>
+	<a th:href="@{/images}">View and Decrypt Images Without Access Rules</a>
+	<br>
+	<br>
+	<a th:href="@{/uploadImageBasedOnGroups}">Upload Images Based on User Groups Access Rules</a>
+	<br>
+	<br>
+	<a th:href="@{/viewImageUploadedByUser}">View Images Uploaded By User</a>
+	<br>
+	<br>
+	<a th:href="@{/viewImageForUserGroup}">View All Images</a>
+	<br>
+	<br>
+	<a th:href="@{/goToUploadImageRoi}">Upload Images By ROI</a>
+	<br>
+	<br>
+	<a th:href="@{/viewImageRoiPage}">View ROI Protected images</a>
+	<br>
+
+</body>
+
+</html>

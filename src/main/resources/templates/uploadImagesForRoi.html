@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+
+<body>
+	
+	    <script th:inline="javascript">
+	        function validateForm() {
+	            var fileInput = document.getElementById('files');
+	            var submitBtn = document.getElementById('submitBtn');
+	            if (fileInput.files.length === 0) {
+	                alert('Please select at least one image.');
+	                return false; 
+	            }
+	            return true; 
+	        }
+	    </script>
+
+	<h1>Upload Images Protecting ROI</h1>
+
+	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Sign Out" />
+	</form>
+	
+	<br>
+	<br>
+	<form th:action="@{/uploadImagesForROI}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+		<!-- <input type="file" name="files" multiple> -->
+		<input type="file" name="files" id="files" multiple accept="image/*" required>
+		<br>
+		<br>
+		<table>
+		    <thead>
+		        <tr>
+		            <th>Group Name</th>
+		            <th>Action</th>
+		        </tr>
+		    </thead>
+		    <tbody>
+		        <tr th:each="role : ${roles}">
+		            <td th:text="${role.name}"></td>
+		            <td>
+		                <input type="checkbox" th:name="'viewGroups'" th:value="${role.name}"> View
+						<!--     <input type="checkbox" th:name="'editGroups'" th:value="${role.name}"> Edit 	-->
+		            </td>
+		        </tr>
+		    </tbody>
+		</table>
+		<br>
+		<br>
+		<input type="submit" value="Upload Image" id="submitBtn">
+	</form>
+	<br>
+	<br>
+	<a th:href="@{/indexPage}">Go back to main page</a>
+
+
+</body>
+
+</html>

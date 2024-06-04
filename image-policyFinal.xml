@@ -1,0 +1,67 @@
+<Policy xmlns="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:3.0:core:schema:wd-17 http://docs.oasis-open.org/xacml/3.0/xacml-core-v3-schema-wd-17.xsd" PolicyId="urn:isdcm:policyid:1" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable" Version="1.0">
+    <Description>Policy</Description>
+    <Target>
+        <AnyOf>
+            <AllOf>
+                <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                    <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">abc.jpeg</AttributeValue>
+                    <AttributeDesignator MustBePresent="false"                         AttributeId="urn:oasis:names:tc:xacml:1.0:resource:image-name"                         Category="urn:oasis:names:tc:xacml:3.0:attribute-category:resource"                         DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                </Match>
+            </AllOf>
+        </AnyOf>
+    </Target>
+    <Rule RuleId="urn:oasis:names:tc:xacml:3.0:permit-image-view" Effect="Permit">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <!-- Which group -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Group1</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                    <!-- Which action  -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">view</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"                             AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+    </Rule>
+    <Rule RuleId="urn:oasis:names:tc:xacml:3.0:permit-image-hiding" Effect="Permit">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <!-- Which group -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Group2</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                    <!-- Which action  -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">hide</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"                             AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+    </Rule>
+    <Rule RuleId="urn:oasis:names:tc:xacml:3.0:permit-image-editing" Effect="Permit">
+        <Target>
+            <AnyOf>
+                <AllOf>
+                    <!-- Which group -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Group3</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"                             Category="urn:oasis:names:tc:xacml:1.0:subject-category:access-subject"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                    <!-- Which action  -->
+                    <Match MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+                        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">edit</AttributeValue>
+                        <AttributeDesignator MustBePresent="false"                             Category="urn:oasis:names:tc:xacml:3.0:attribute-category:action"                             AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id"                             DataType="http://www.w3.org/2001/XMLSchema#string"/>
+                    </Match>
+                </AllOf>
+            </AnyOf>
+        </Target>
+    </Rule>
+</Policy>

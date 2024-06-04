@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>View Image</title>
+</head>
+
+<body>
+	<h1>View Individual Image</h1>
+
+	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Sign Out" />
+	</form>
+	<br>
+	<br>
+	<a th:href="@{/indexPage}">Go back to main page</a>
+	
+	<br>
+	<br>
+
+	<h2>Name of the Image: <span th:text="${fileName}"></span></h2>
+
+	<img th:src="@{/files/image/{fileName}(fileName=${fileName})}" alt="Image" 	style="width: 300px; height: auto;"/>
+
+	<br>
+
+</body>
+
+</html>

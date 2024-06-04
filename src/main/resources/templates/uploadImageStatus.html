@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	</meta>
+	<title>Uplaod Status</title>
+</head>
+
+<body>
+	
+	<h1>Upload Images Status</h1>
+
+	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Sign Out" />
+	</form>
+	<br>
+	<br>
+	<div th:if="${msg}">
+		<span th:text="${msg}"></span>
+	</div>
+	<br>
+	<br>
+	<a th:href="@{/indexPage}">Go back to main page</a>
+
+</body>
+
+</html>

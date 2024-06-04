@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+
+<body>
+    <h1>Display list of images</h1>
+
+    <h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out" />
+    </form>
+	<br>
+	<br>
+    <table>
+        <thead>
+            <tr>
+                <th>Image / JUMBF Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="fileName : ${fileNames}">
+                <td>
+                    <a th:href="@{/files/__${fileName}__}" th:text="${fileName}"></a>
+                </td>
+                <td>
+                    <a th:href="@{/decryptImage(fileName=${fileName})}" class="btn">Decrypt Images</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+	<br>
+	<br>
+    <a th:href="@{/indexPage}">Go back to main page</a>
+</body>
+
+</html>
