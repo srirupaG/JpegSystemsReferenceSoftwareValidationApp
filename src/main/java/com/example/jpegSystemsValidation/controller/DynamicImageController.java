@@ -90,6 +90,8 @@ public class DynamicImageController {
 	
 	public static final String DECRYPT_JPEG = "_decrypt.jpeg";
 	
+	public static final String SUFFIX_JPEG = ".jpeg";
+	
 	public final UserRepository userRepository;
 	
 	public final RoleRepository roleRepository;
@@ -139,6 +141,7 @@ public class DynamicImageController {
         for (MultipartFile file : files) {
 			Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
 			fileNames.append(file.getOriginalFilename() + " ");
+			int lastDotIndex = fileNames.lastIndexOf(".");
 
 			try {
 				Cipher cipher = Cipher.getInstance("AES");
@@ -151,7 +154,7 @@ public class DynamicImageController {
 				} else {
 				CipherInputStream cipt = new CipherInputStream(new FileInputStream(fileToRead), cipher);
 				
-				FileOutputStream fileip = new FileOutputStream(uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_OBJ);
+				FileOutputStream fileip = new FileOutputStream(uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_OBJ);
 				int i;
 				while ((i = cipt.read()) != -1) {
 					fileip.write(i);
@@ -178,8 +181,7 @@ public class DynamicImageController {
 				protectionDescriptionBox.includeAccessRulesInToggle();
 
 				BinaryDataBox binaryDataBox = new BinaryDataBox();
-				binaryDataBox
-						.setFileUrl(uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_OBJ);
+				binaryDataBox.setFileUrl(uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_OBJ);
 
 				ProtectionContentType protectionContentType = new ProtectionContentType();
 				JumbfBoxBuilder jumbfBoxBuilder = new JumbfBoxBuilder(protectionContentType);
@@ -205,7 +207,7 @@ public class DynamicImageController {
 				jumbfBoxBuilder.appendContentBox(xmlBox);
 				JumbfBox jBoxForXmlBox = jumbfBoxBuilder.getResult();
 				coreGeneratorService.generateJumbfMetadataToFile(List.of(jBox, jBoxForXmlBox),
-						uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_JUMBF);
+						uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_JUMBF);
 
 				Files.write(fileNameAndPath, file.getBytes());
 				
@@ -243,7 +245,8 @@ public class DynamicImageController {
 	 * View Images Uploaded By Users
 	 */
 	@GetMapping("/viewImageUploadedByUser")
-	public String viewImageUploadedByUser(Model model, Principal principal) {
+	public String viewImageUploadedByUser(Model model, 
+											Principal principal) {
 		
 		String loggedInUser = principal.getName();
 		User users = userRepository.findByUsername(loggedInUser);
@@ -284,14 +287,13 @@ public class DynamicImageController {
 
 			if(filePath.equalsIgnoreCase(uploadDirectory)) {
 				
-				String jumbfFileName = images.getImageName() + ENCRYPT_JUMBF;
+				int lastDotIndex = images.getImageName().lastIndexOf(".");
+				String baseFileName = images.getImageName().substring(0, lastDotIndex);
+				System.out.println("baseFileName:::"+baseFileName);
+				
+				String jumbfFileName = baseFileName + ENCRYPT_JUMBF;
 				System.out.println("jumbfFileName:::::"+jumbfFileName);
 				
-				int lastDotIndex = jumbfFileName.lastIndexOf(".");
-				String baseFileName = jumbfFileName.substring(0, lastDotIndex);
-				
-				System.out.println("baseFileName:::"+baseFileName);
-
 				List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + jumbfFileName);
 				JumbfBox jBoxess = bBoxes.get(0);
 				
@@ -310,7 +312,8 @@ public class DynamicImageController {
 						fileipo.write(j);
 					}
 					
-					model.addAttribute("msg", "Successfully decrypted files " + baseFileName + DECRYPT_JPEG + ", go back to main menu to view this image");
+					model.addAttribute("msg", "Successfully decrypted .jumbf file " + jumbfFileName);
+					model.addAttribute("imageName", baseFileName + SUFFIX_JPEG);
 					model.addAttribute("fileName", baseFileName + DECRYPT_JPEG);
 				
 			}
@@ -322,7 +325,9 @@ public class DynamicImageController {
 	 * View / Hide functionality from database 
 	*/
 	@PostMapping("/hideImageFromOthers")
-    public String hideImageFromOthers(@RequestParam("imageIds") List<Long> imageIds, Model model, Principal principal) {
+    public String hideImageFromOthers(@RequestParam("imageIds") List<Long> imageIds, 
+    		Model model, 
+    		Principal principal) {
 		
         for (Long imageId : imageIds) {
         	Optional<Image> imageOptional = imageService.findByImageId(imageId);
@@ -341,7 +346,12 @@ public class DynamicImageController {
 		User users = userRepository.findByUsername(loggedInUser);
 		System.out.println("users::::::::"+ users.getId());
 		
-		List<Image> images = imageService.findImagesByUserId(users.getId());
+		List<Image> listOfAllImages = imageService.findImagesByUserId(users.getId());
+	    List<Image> images = listOfAllImages.stream()
+                .filter(image -> !image.getImageName().contains("ROI"))
+                .collect(Collectors.toList());
+		
+		
 		model.addAttribute("images", images);
         
         return "viewImagesUploadedByUser";
@@ -388,13 +398,13 @@ public class DynamicImageController {
 		
 			if(filePath.equalsIgnoreCase(uploadDirectory)) {
 				
-				String jumbfFileName = images.getImageName() + ENCRYPT_JUMBF;
+				int lastDotIndex = images.getImageName().lastIndexOf(".");
+				String baseFileName = images.getImageName().substring(0, lastDotIndex);
+				System.out.println("baseFileName:::"+baseFileName);
+				
+				String jumbfFileName = baseFileName + ENCRYPT_JUMBF;
 				System.out.println("jumbfFileName:::::"+jumbfFileName);
 				
-				int lastDotIndex = jumbfFileName.lastIndexOf(".");
-				String baseFileName = jumbfFileName.substring(0, lastDotIndex);
-				
-				System.out.println("baseFileName:::"+baseFileName);
 				
 				List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + jumbfFileName);
 				JumbfBox jBoxess = bBoxes.get(0);
@@ -467,9 +477,11 @@ public class DynamicImageController {
 							fileipo.write(j);
 						}
 						
-						model.addAttribute("msg", "Successfully decrypted files " + baseFileName + DECRYPT_JPEG + ", go back to main menu to view this image");
-						
+						model.addAttribute("msg", "Successfully decrypted .jumbf file " + jumbfFileName);
+						model.addAttribute("imageName", baseFileName + SUFFIX_JPEG);
 						model.addAttribute("fileName", baseFileName + DECRYPT_JPEG);
+						
+						
 					}
 					else {
 						model.addAttribute("error", "User not allowed to view image");
@@ -494,10 +506,15 @@ public class DynamicImageController {
 			InvalidKeySpecException, IOException, SAXException, ParserConfigurationException {
 		
 		
-		String fileName = imageName + ENCRYPT_JUMBF;
-		int lastDotIndex = fileName.lastIndexOf(".");
-
-		List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + fileName);
+		int lastDotIndex = imageName.lastIndexOf(".");
+		String baseFileName = imageName.substring(0, lastDotIndex);
+		System.out.println("baseFileName:::"+baseFileName);
+		
+		String jumbfFileName = baseFileName + ENCRYPT_JUMBF;
+		System.out.println("jumbfFileName:::::"+jumbfFileName);
+		
+		
+		List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + jumbfFileName);
 		JumbfBox jBoxess = bBoxes.get(0);
 		
 		BinaryDataBox bBox = (BinaryDataBox) jBoxess.getContentBoxList().get(1);
@@ -551,9 +568,7 @@ public class DynamicImageController {
 		if(canEdit) {
 			
 			System.out.println("User can edit the Jumbf file");
-        	
-			model.addAttribute("msg", "User is authorised to edit the Image (Jumbf file)");
-			
+			model.addAttribute("msg", "User is authorised to edit the Image (Jumbf file) " + jumbfFileName);
 			return "displayDecryptStatus";
 		}
 		else {

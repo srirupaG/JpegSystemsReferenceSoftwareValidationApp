@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.jpegSystemsValidation.model.Image;
 import com.example.jpegSystemsValidation.util.SecretKeyUtil;
 
 @Controller
@@ -62,9 +61,7 @@ public class ImageController {
 
 	public static final String DECRYPT_JPEG = "_decrypt.jpeg";
 	
-	public static final String JUMBF_FILE_NAME = "Desert.jpeg_encrypt.jumbf";
-	
-	public static final String IMAGE_NAME_DESERT = "Desert.jpeg";
+	public static final String SUFFIX_JPEG = ".jpeg";
 	
 	/** Display the list of images which are fetched from a local directory */
 	@Value("${file.directory.path}")
@@ -88,7 +85,7 @@ public class ImageController {
 			List<String> fileNames = Arrays.stream(listOfFiles)
                     .filter(file -> {
                         String fileName = file.getName().toLowerCase();
-                        boolean hasValidExtension = fileName.endsWith(".jumbf") || fileName.endsWith(".jpeg");
+                        boolean hasValidExtension = fileName.endsWith(".jumbf");
                         boolean containsROI = fileName.contains("roi");
                         return hasValidExtension && !containsROI;
                     })
@@ -174,14 +171,21 @@ public class ImageController {
 		for (MultipartFile file : files) {
 			Path fileNameAndPath = Paths.get(uploadDirectory, file.getOriginalFilename());
 			fileNames.append(file.getOriginalFilename() + " ");
+			
+//			System.out.println("fileNames:::::"+fileNames.toString());
+			
+			int lastDotIndex = fileNames.lastIndexOf(".");
+//			String newFileName = fileNames.substring(0, lastDotIndex);
+//			System.out.println("newFileName:::::"+newFileName);
+			
 			try {
 
+				// Check
+//				Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 				Cipher cipher = Cipher.getInstance("AES");
 				cipher.init(Cipher.ENCRYPT_MODE, SecretKeyUtil.getKeyFromPassword("abc", "xyz")); // get userId
-				CipherInputStream cipt = new CipherInputStream(
-						new FileInputStream(new File(uploadDirectory, file.getOriginalFilename())), cipher);
-				FileOutputStream fileip = new FileOutputStream(
-						uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_OBJ);
+				CipherInputStream cipt = new CipherInputStream(new FileInputStream(new File(uploadDirectory, file.getOriginalFilename())), cipher);
+				FileOutputStream fileip = new FileOutputStream(uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_OBJ);
 				int i;
 				while ((i = cipt.read()) != -1) {
 					fileip.write(i);
@@ -191,7 +195,7 @@ public class ImageController {
 				protectionDescriptionBox.setAes256CbcProtection();
 
 				BinaryDataBox binaryDataBox = new BinaryDataBox();
-				binaryDataBox.setFileUrl(uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_OBJ);
+				binaryDataBox.setFileUrl(uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_OBJ);
 
 				ProtectionContentType protectionContentType = new ProtectionContentType();
 				JumbfBoxBuilder jumbfBoxBuilder = new JumbfBoxBuilder(protectionContentType);
@@ -202,7 +206,7 @@ public class ImageController {
 				JumbfBox jBox = jumbfBoxBuilder.getResult();
 
 				coreGeneratorService.generateJumbfMetadataToFile(List.of(jBox),
-						uploadDirectory + "/" + file.getOriginalFilename() + ENCRYPT_JUMBF);
+						uploadDirectory + "/" + file.getOriginalFilename().substring(0, lastDotIndex) + ENCRYPT_JUMBF);
 
 				Files.write(fileNameAndPath, file.getBytes());
 
@@ -212,7 +216,7 @@ public class ImageController {
 
 		}
 
-		model.addAttribute("msg", "Successfully uploaded files " + fileNames.toString());
+		model.addAttribute("msg", "Successfully uploaded Image: " + fileNames.toString());
 		return "uploadImageStatus";
 	}
 
@@ -227,6 +231,13 @@ public class ImageController {
 
 		int lastDotIndex = fileName.lastIndexOf(".");
 		String baseFileName = fileName.substring(0, lastDotIndex);
+		
+		int lastUnderscoreIndex = fileName.lastIndexOf("_");
+		String originalFileName = fileName.substring(0, lastUnderscoreIndex);
+//		
+		System.out.println("baseFileName:::"+baseFileName);
+		
+		System.out.println("originalFileName:::"+originalFileName);
 
 		List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + fileName);
 		JumbfBox jBoxess = bBoxes.get(0);
@@ -237,15 +248,18 @@ public class ImageController {
 		cipher.init(Cipher.DECRYPT_MODE, SecretKeyUtil.getKeyFromPassword("abc", "xyz"));
 		CipherInputStream ciptt = new CipherInputStream(new FileInputStream(new File(bBox.getFileUrl())), cipher);
 
-		FileOutputStream fileipo = new FileOutputStream(uploadDirectory + "/" + baseFileName + DECRYPT_JPEG);
-
+		FileOutputStream fileipo = new FileOutputStream(uploadDirectory + "/" + fileName + DECRYPT_JPEG);
+		
 		int j;
 		while ((j = ciptt.read()) != -1) {
 			fileipo.write(j);
 		}
 
-		model.addAttribute("msg", "Successfully decrypted files " + baseFileName + DECRYPT_JPEG);
-		return "displayDecryptStatus";
+		model.addAttribute("msg", "Successfully decrypted .jumbf file " + fileName);
+		model.addAttribute("imageName", originalFileName + SUFFIX_JPEG);
+		model.addAttribute("fileName", fileName + DECRYPT_JPEG);
+		
+		return "viewImage";
 	}
 
 

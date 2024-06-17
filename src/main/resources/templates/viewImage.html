@@ -15,13 +15,17 @@
 		<input type="submit" value="Sign Out" />
 	</form>
 	<br>
-	<br>
 	<a th:href="@{/indexPage}">Go back to main page</a>
 	
 	<br>
 	<br>
+	
+	
+	<div th:if="${msg}">
+		<span th:text="${msg}"></span>
+	</div>
 
-	<h2>Name of the Image: <span th:text="${fileName}"></span></h2>
+	<h3>Name of the Original Image: <span th:text="${imageName}"></span></h3>
 
 	<img th:src="@{/files/image/{fileName}(fileName=${fileName})}" alt="Image" 	style="width: 300px; height: auto;"/>
 

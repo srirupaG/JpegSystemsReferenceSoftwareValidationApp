@@ -30,7 +30,26 @@
 	<br>
 	<br>
 	<form th:action="@{/uploadImagesForROI}" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
+		
+		
+		
 		<input type="file" name="files" id="files" multiple accept="image/*" required>
+		<br>Choose the Offsets and the dimensions for this Emoji <img th:src="@{images/Emoji.jpeg}" alt="emoji"><br>
+		
+		<br>
+		<label for="xAxis">X Offset in pixel:</label>
+		<input type="number" name="offsetX" id="offsetX" required>
+		
+		<label for="yAxis">Y Offset in pixel:</label>
+		<input type="number" name="offsetY" id="offsetY" required>
+
+		<br><br>
+		
+		<label for="xWidth">Width :</label>
+		<input type="number" name="widthX" id="widthX" required>
+		
+		<label for="yHight">Height :</label>
+		<input type="number" name="hightY" id="hightY" required>
 		<br>
 		<br>
 		<table>

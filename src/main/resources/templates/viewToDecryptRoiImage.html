@@ -8,7 +8,7 @@
 </head>
 
 <body>
-	<h1>View ROI Protected Image</h1>
+	<h1>View Protected ROI Image</h1>
 
 	<h1 th:inline="text">Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!</h1>
 	<form th:action="@{/logout}" method="post">
@@ -19,7 +19,8 @@
 	<a th:href="@{/indexPage}">Go back to main page</a>
 	
 	<br>
-	<br>
+	
+	<h3>Name of the Image: <span th:text="${imageName}"></span></h3>
 	
 	    <div th:if="${base64Image != null}">
 	        <img th:src="'data:image/jpeg;base64,' + ${base64Image}" alt="Image" style="width: 300px; height: auto;"/>

@@ -48,6 +48,8 @@ import org.mipams.privsec.services.content_types.ProtectionContentType;
 import org.mipams.privsec.services.content_types.ReplacementContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -101,17 +103,19 @@ public class ROIController {
 	
 	public static final String DECRYPT_JPEG = "_decrypt.jpeg";
 	
-	public static final String APPEND_WITH_ROI = "_with_ROI.jpg";
+	public static final String APPEND_WITH_ROI = "_with_ROI.jpeg";
 	
-	public static final String APPEND_WITH_CROPPED_R = "_cropped_R.jpg";
+	public static final String APPEND_WITH_CROPPED_R = "_cropped_R.jpeg";
 	
-	public static final String APPEND_WITH_EMOJI_R = "_emoji_R.jpg";
+	public static final String APPEND_WITH_EMOJI_R = "_emoji_R.jpeg";
 	
 	public static final String EMOJI_TO_BE_INSERTED = "Emoji.jpeg";
 	
-	public static final String ENCRYPT_REPLACEMENT_BOX = "ecryptReplacementBox.jumbf";
+	public static final String ENCRYPT_REPLACEMENT_BOX = "ecrypt_ReplacementBox.jumbf";
 	
 	public static final String DECRYPT_INTERMEDIATE = "DecryptIntermediate";
+	
+	public static final String SUFFIX_JPEG = ".jpeg";
 	
 	public final UserRepository userRepository;
 	
@@ -121,6 +125,9 @@ public class ROIController {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
+    
+    @Autowired
+    private ResourceLoader resourceLoader;
     
     
 	/** 
@@ -159,7 +166,7 @@ public class ROIController {
 		 * */
 		private String saveImage(BufferedImage image, String outputPath) throws IOException {
 		    File outputFile = new File(outputPath);
-		    ImageIO.write(image, "jpg", outputFile);
+		    ImageIO.write(image, "jpeg", outputFile);
 		    return outputFile.getAbsolutePath();
 		}
 		
@@ -198,6 +205,10 @@ public class ROIController {
 		@RequestMapping("/uploadImagesForROI")
 		public String uploadImagesForROI(Model model, 
 			@RequestParam("files") MultipartFile[] files, 
+			@RequestParam("offsetX") Integer offsetX,
+            @RequestParam("offsetY") Integer offsetY,
+			@RequestParam("widthX") Integer widthX,
+            @RequestParam("hightY") Integer hightY,
             @RequestParam(value = "viewGroups", required = false) List<String> viewGroupNames,
 			Principal principal)
 			throws InvalidKeySpecException, NoSuchAlgorithmException, FileNotFoundException, NoSuchPaddingException,
@@ -219,12 +230,17 @@ public class ROIController {
 	            String emojiOverlayPath = uploadDirectory + "/" + baseName + APPEND_WITH_EMOJI_R;
 	            String finalFileName = baseName + APPEND_WITH_ROI;
 	            
-	            // Define the region of interest (ROI), the position determined by offsets x and y 
-	            int roiX = 500;
-	            int roiY = 500;
-	            int roiWidth = 400;
-	            int roiHeight = 400;
-			
+	             // Define the region of interest (ROI), the position determined by offsets x and y 
+	            //this as this is an example
+//	            int roiX = 450;
+//	            int roiY = 500;
+//	            int roiWidth = 300;
+//	            int roiHeight = 300;
+	            int roiX = offsetX;
+	            int roiY = offsetY;
+	            int roiWidth = widthX;
+	            int roiHeight = hightY;
+	            
 	            File imageFile = new File(imagePath);
 	    	    if (!imageFile.exists()) {
 	    	        System.err.println("The file " + imagePath + " does not exist");
@@ -240,7 +256,12 @@ public class ROIController {
 		            String savedCroppedImagePath = saveImage(croppedImage, roiImagePath);
 		            System.out.println("savedCroppedImagePath::::: " + savedCroppedImagePath);
 
-		            BufferedImage emojiImage = ImageIO.read(new File(uploadDirectory + "/" + EMOJI_TO_BE_INSERTED));
+//		            BufferedImage emojiImage = ImageIO.read(new File(uploadDirectory + "/" + EMOJI_TO_BE_INSERTED));
+		            
+		            Resource resource = resourceLoader.getResource("classpath:static/images/emoji.jpeg");
+		            BufferedImage emojiImage = ImageIO.read(resource.getInputStream());
+		            
+		            
 		            BufferedImage resizedEmojiImage = resizeImage(emojiImage, roiWidth, roiHeight);
 
 		            BufferedImage emojiOverlayImage = addEmojiOverlay(croppedImage, resizedEmojiImage);
@@ -348,6 +369,7 @@ public class ROIController {
 				XmlBox xmlBox = new XmlBox();
 				// setting StringBuilder content to String
 				xmlBox.setContent(xacmlContentString.toString().getBytes());
+				
 
 				jumbfBoxBuilder.appendContentBox(xmlBox);
 				JumbfBox jBoxForXmlBox = jumbfBoxBuilder.getResult();
@@ -430,6 +452,7 @@ public class ROIController {
 	                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
 	
 	                model.addAttribute("imageId", imageId);
+	                model.addAttribute("imageName", imageName);
 	                model.addAttribute("base64Image", base64Image);
 	            } else {
 	                System.out.println("Image not found in the specified folder.");
@@ -469,7 +492,7 @@ public class ROIController {
 					int lastDotIndex = jumbfFileName.lastIndexOf(".");
 					String baseFileName = jumbfFileName.substring(0, lastDotIndex);
 					String outputPath = uploadDirectory + "/" + baseFileName + DECRYPT_JPEG;
-
+					
 					List<JumbfBox> bBoxes = coreParserService.parseMetadataFromFile(uploadDirectory + "/" + jumbfFileName);
 					JumbfBox jBoxess = bBoxes.get(0);
 					
@@ -478,6 +501,7 @@ public class ROIController {
 					
 					JumbfBox jBoxessXml = bBoxes.get(1);
 					XmlBox xmlBox = (XmlBox)jBoxessXml.getContentBoxList().get(0);
+					System.out.println("xmlBox:::::"+ new String(xmlBox.getContent()));
 					
 					// XML content as a string
 					String xmlContent = new String(xmlBox.getContent());
@@ -579,7 +603,9 @@ public class ROIController {
 				            System.err.println("Error processing the image: " + e.getMessage());
 				            e.printStackTrace();
 				        }
-							model.addAttribute("msg", "Successfully decrypted files " + baseFileName + DECRYPT_JPEG + ", go back to main menu to view this image");
+							
+							model.addAttribute("msg", "Successfully decrypted .jumbf file " + jumbfFileName);
+							model.addAttribute("imageName", imageName);
 							model.addAttribute("fileName", baseFileName + DECRYPT_JPEG);
 				        	 
 				        	 

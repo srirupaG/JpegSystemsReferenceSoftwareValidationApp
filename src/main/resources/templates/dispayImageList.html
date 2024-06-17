@@ -18,14 +18,14 @@
     <table>
         <thead>
             <tr>
-                <th>Image / JUMBF Name</th>
+                <th>JUMBF File Name</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="fileName : ${fileNames}">
                 <td>
-                    <a th:href="@{/files/__${fileName}__}" th:text="${fileName}"></a>
+                    <a th:text="${fileName}"></a>
                 </td>
                 <td>
                     <a th:href="@{/decryptImage(fileName=${fileName})}" class="btn">Decrypt Images</a>
