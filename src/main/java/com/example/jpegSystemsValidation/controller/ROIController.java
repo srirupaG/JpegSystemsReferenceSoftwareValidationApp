@@ -109,13 +109,15 @@ public class ROIController {
 	
 	public static final String APPEND_WITH_EMOJI_R = "_emoji_R.jpeg";
 	
-	public static final String EMOJI_TO_BE_INSERTED = "Emoji.jpeg";
+//	public static final String EMOJI_TO_BE_INSERTED = "Emoji.jpeg";
 	
 	public static final String ENCRYPT_REPLACEMENT_BOX = "ecrypt_ReplacementBox.jumbf";
 	
 	public static final String DECRYPT_INTERMEDIATE = "DecryptIntermediate";
 	
 	public static final String SUFFIX_JPEG = ".jpeg";
+	
+	public static final String CLASSPATH_EMOJI = "classpath:static/images/Emoji.jpeg";
 	
 	public final UserRepository userRepository;
 	
@@ -258,7 +260,7 @@ public class ROIController {
 
 //		            BufferedImage emojiImage = ImageIO.read(new File(uploadDirectory + "/" + EMOJI_TO_BE_INSERTED));
 		            
-		            Resource resource = resourceLoader.getResource("classpath:static/images/emoji.jpeg");
+		            Resource resource = resourceLoader.getResource(CLASSPATH_EMOJI);
 		            BufferedImage emojiImage = ImageIO.read(resource.getInputStream());
 		            
 		            
